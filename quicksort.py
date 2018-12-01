@@ -1,31 +1,68 @@
 from random import randint
 
-def quicksort(arr, ini, fim):
-	if ini < fim:
-		pp = partition(arr, ini, fim)
-		quicksort(arr, ini, pp)
-		quicksort(arr, pp+1,fim)
+swp_count = 0
+ifs_count = 0
+
+def quicksort(arr, beg, end, separateFn):
+	global ifs_count
+	if beg < end:
+		ifs_count += 1
+		pivot = separateFn(arr, beg, end)
+		quicksort(arr, beg, pivot - 1, separateFn)
+		quicksort(arr, pivot + 1, end, separateFn)
 	return arr
 
-def partition(arr, ini, fim):
-	pivo = arr[fim-1]
-	start = ini
-	for i in range(ini,fim):
-		if arr[i] <= pivo:
-			start += 1
-			swap(arr, start-1, i)
-	return start-1
-	
-def randpartition(arr,ini,fim):
-	rand = randint(ini,fim)
-	swap(arr, rand, fim-1)
-	return partition(arr,ini,fim)
+def quicksort1(arr, beg, end):
+	return quicksort(arr, beg, end, lambda a,b,e : separate(a,b,e,randint(b,e)))
 
-def swap(arr, a, b):
-	arr[a], arr[b] = arr[b], arr[a]
+def quicksort2(arr, beg, end):
+	return quicksort(arr, beg, end, lambda a,b,e : separate(a,b,e,b))
 
-arr = [8,5,12,55,3,7,82,44,35,25,41,29,17]
-print (arr)
-print (quicksort(arr,0,len(arr)))
+def separate(arr, beg, end, pos):
+	global ifs_count
+	msg = "ANTES: " + str(arr) + " PIVO: " + str(arr[pos])
+	pivot = arr[pos]
+	left = beg
+	right = end
+	while left < right:
+		while left < end and arr[left] <= pivot:
+			ifs_count += 1
+			left += 1
+
+		while right > beg and arr[right] > pivot:
+			ifs_count += 1
+			right -= 1
+
+		if left < right:
+			ifs_count += 1
+			swap(arr, left, right)
+
+	new_pos = -1
+	if pos <= right:
+		ifs_count += 1
+		new_pos = right
+	else:
+		new_pos = left
+
+	swap(arr, pos, new_pos)
+	print (msg + " DEPOIS: " + str(arr))
+	return new_pos
+
+def swap(arr, left, right):
+	global swp_count
+	swp_count += 1
+	arr[left], arr[right] = arr[right], arr[left]
 
 
+arr = ['J', 'O', 'A', 'V', 'I', 'C', 'T', 'R', 'F', 'L', 'E', 'S', 'D', 'U', 'N', 'H', 'G', 'M', 'P', 'Y']
+
+num = input("input: ")
+if num == '1':
+	quicksort1(arr, 0, len(arr)-1)
+elif num == '2':
+	quicksort2(arr, 0, len(arr)-1)
+else:
+	print ('wrong input')
+
+print ('contagem de comparações: ' + str(ifs_count))
+print ('contagem de trocas: ' + str(swp_count))
